@@ -5,10 +5,10 @@
 #include "string.h"
 
 VALUE mAttributeBuilder, mObjectRef;
-static ID id_flatten, id_keys, id_parse, id_prepend, id_tr, id_uniq_bang;
+static ID id_flatten, id_keys, id_parse, id_uniq_bang;
 static ID id_xhtml;
 
-static VALUE str_aria, str_data, str_equal, str_hyphen, str_space, str_underscore;
+static VALUE str_aria, str_data, str_space, str_underscore;
 
 static void
 delete_falsey_values(VALUE values)
@@ -42,10 +42,11 @@ hyphenate(VALUE str)
   long i;
 
   if (OBJ_FROZEN(str)) str = rb_str_dup(str);
+  rb_str_modify(str);
 
   for (i = 0; i < RSTRING_LEN(str); i++) {
     if (RSTRING_PTR(str)[i] == '_') {
-      rb_str_update(str, i, 1, str_hyphen);
+      RSTRING_PTR(str)[i] = '-';
     }
   }
   return str;
@@ -176,7 +177,10 @@ merge_data_attrs_i(VALUE key, VALUE value, VALUE ptr)
   if (NIL_P(key)) {
     rb_hash_aset(merged, key_str, value);
   } else {
-    key = rb_str_concat(rb_str_concat(rb_str_dup(key_str), rb_str_new_cstr("-")), to_s(key));
+    VALUE new_key = rb_str_dup(key_str);
+    rb_str_cat(new_key, "-", 1);
+    rb_str_concat(new_key, to_s(key));
+    key = new_key;
     rb_hash_aset(merged, key, value);
   }
   return ST_CONTINUE;
@@ -279,7 +283,7 @@ hamlit_build_data(VALUE escape_attrs, VALUE quote, VALUE values, VALUE key_str)
 
     switch (value) {
       case Qtrue:
-        rb_str_concat(buf, str_space);
+        rb_str_cat(buf, " ", 1);
         rb_str_concat(buf, key);
         break;
       case Qnil:
@@ -287,9 +291,9 @@ hamlit_build_data(VALUE escape_attrs, VALUE quote, VALUE values, VALUE key_str)
       case Qfalse:
         break; // noop
       default:
-        rb_str_concat(buf, str_space);
+        rb_str_cat(buf, " ", 1);
         rb_str_concat(buf, key);
-        rb_str_concat(buf, str_equal);
+        rb_str_cat(buf, "=", 1);
         rb_str_concat(buf, quote);
         rb_str_concat(buf, escape_attribute(escape_attrs, to_s(value)));
         rb_str_concat(buf, quote);
@@ -344,8 +348,10 @@ merge_all_attrs(VALUE hashes)
 int
 is_boolean_attribute(VALUE key, VALUE boolean_attributes)
 {
-  if (str_eq(rb_str_substr(key, 0, 5), "data-", 5)) return 1;
-  if (str_eq(rb_str_substr(key, 0, 5), "aria-", 5)) return 1;
+  if (RSTRING_LEN(key) >= 5) {
+    if (memcmp(RSTRING_PTR(key), "data-", 5) == 0) return 1;
+    if (memcmp(RSTRING_PTR(key), "aria-", 5) == 0) return 1;
+  }
   return RTEST(rb_ary_includes(boolean_attributes, key));
 }
 
@@ -521,16 +527,11 @@ Init_hamlit(void)
   id_flatten   = rb_intern("flatten");
   id_keys      = rb_intern("keys");
   id_parse     = rb_intern("parse");
-  id_prepend   = rb_intern("prepend");
-  id_tr        = rb_intern("tr");
   id_uniq_bang = rb_intern("uniq!");
   id_xhtml     = rb_intern("xhtml");
 
-  // Consider using rb_interned_str() once we stop supporting Ruby 2.7.
   rb_gc_register_mark_object(str_aria       = rb_obj_freeze(rb_str_new_cstr("aria")));
   rb_gc_register_mark_object(str_data       = rb_obj_freeze(rb_str_new_cstr("data")));
-  rb_gc_register_mark_object(str_equal      = rb_obj_freeze(rb_str_new_cstr("=")));
-  rb_gc_register_mark_object(str_hyphen     = rb_obj_freeze(rb_str_new_cstr("-")));
   rb_gc_register_mark_object(str_space      = rb_obj_freeze(rb_str_new_cstr(" ")));
   rb_gc_register_mark_object(str_underscore = rb_obj_freeze(rb_str_new_cstr("_")));
 }
