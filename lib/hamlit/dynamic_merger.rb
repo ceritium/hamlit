@@ -40,7 +40,11 @@ module Hamlit
       exps.each do |type, arg|
         case type
         when :static
-          strlit_body << arg.dump.sub!(/\A"/, '').sub!(/"\z/, '').gsub('\n', "\n")
+          dumped = arg.dump
+          dumped.delete_prefix!('"')
+          dumped.delete_suffix!('"')
+          dumped.gsub!('\n', "\n")
+          strlit_body << dumped
         when :dynamic
           strlit_body << "\#{#{arg}}"
         when :newline
