@@ -275,7 +275,7 @@ hamlit_build_data(VALUE escape_attrs, VALUE quote, VALUE values, VALUE key_str)
   attrs = merge_data_attrs(values, key_str);
   attrs = flatten_data_attrs(attrs);
   keys  = rb_ary_sort_bang(rb_funcall(attrs, id_keys, 0));
-  buf   = rb_str_new("", 0);
+  buf   = rb_str_buf_new(128);
 
   for (i = 0; i < RARRAY_LEN(keys); i++) {
     key   = rb_ary_entry(keys, i);
@@ -428,7 +428,7 @@ hamlit_build(VALUE escape_attrs, VALUE quote, VALUE format, VALUE boolean_attrib
 
   if (!NIL_P(object_ref)) rb_ary_push(hashes, parse_object_ref(object_ref));
   attrs = merge_all_attrs(hashes);
-  buf   = rb_str_new("", 0);
+  buf   = rb_str_buf_new(256);
   keys  = rb_ary_sort_bang(rb_funcall(attrs, id_keys, 0));
 
   for (i = 0; i < RARRAY_LEN(keys); i++) {
