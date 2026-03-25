@@ -42,10 +42,11 @@ hyphenate(VALUE str)
   long i;
 
   if (OBJ_FROZEN(str)) str = rb_str_dup(str);
+  rb_str_modify(str);
 
   for (i = 0; i < RSTRING_LEN(str); i++) {
     if (RSTRING_PTR(str)[i] == '_') {
-      rb_str_update(str, i, 1, str_hyphen);
+      RSTRING_PTR(str)[i] = '-';
     }
   }
   return str;
