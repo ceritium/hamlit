@@ -345,8 +345,10 @@ merge_all_attrs(VALUE hashes)
 int
 is_boolean_attribute(VALUE key, VALUE boolean_attributes)
 {
-  if (str_eq(rb_str_substr(key, 0, 5), "data-", 5)) return 1;
-  if (str_eq(rb_str_substr(key, 0, 5), "aria-", 5)) return 1;
+  if (RSTRING_LEN(key) >= 5) {
+    if (memcmp(RSTRING_PTR(key), "data-", 5) == 0) return 1;
+    if (memcmp(RSTRING_PTR(key), "aria-", 5) == 0) return 1;
+  }
   return RTEST(rb_ary_includes(boolean_attributes, key));
 }
 
