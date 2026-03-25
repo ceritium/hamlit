@@ -130,7 +130,19 @@ hamlit_build_multi_class(VALUE escape_attrs, VALUE values)
     value = rb_ary_entry(values, i);
     switch (TYPE(value)) {
       case T_STRING:
-        rb_ary_concat(buf, rb_str_split(value, " "));
+        {
+          const char *ptr = RSTRING_PTR(value);
+          long len = RSTRING_LEN(value);
+          long start = 0;
+          for (j = 0; j <= len; j++) {
+            if (j == len || ptr[j] == ' ') {
+              if (j > start) {
+                rb_ary_push(buf, rb_str_new(ptr + start, j - start));
+              }
+              start = j + 1;
+            }
+          }
+        }
         break;
       case T_ARRAY:
         value = rb_funcall(value, id_flatten, 0);
