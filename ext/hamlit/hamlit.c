@@ -177,7 +177,10 @@ merge_data_attrs_i(VALUE key, VALUE value, VALUE ptr)
   if (NIL_P(key)) {
     rb_hash_aset(merged, key_str, value);
   } else {
-    key = rb_str_concat(rb_str_concat(rb_str_dup(key_str), rb_str_new_cstr("-")), to_s(key));
+    VALUE new_key = rb_str_dup(key_str);
+    rb_str_cat(new_key, "-", 1);
+    rb_str_concat(new_key, to_s(key));
+    key = new_key;
     rb_hash_aset(merged, key, value);
   }
   return ST_CONTINUE;
