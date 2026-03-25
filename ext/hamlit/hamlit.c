@@ -280,7 +280,7 @@ hamlit_build_data(VALUE escape_attrs, VALUE quote, VALUE values, VALUE key_str)
 
     switch (value) {
       case Qtrue:
-        rb_str_concat(buf, str_space);
+        rb_str_cat(buf, " ", 1);
         rb_str_concat(buf, key);
         break;
       case Qnil:
@@ -288,9 +288,9 @@ hamlit_build_data(VALUE escape_attrs, VALUE quote, VALUE values, VALUE key_str)
       case Qfalse:
         break; // noop
       default:
-        rb_str_concat(buf, str_space);
+        rb_str_cat(buf, " ", 1);
         rb_str_concat(buf, key);
-        rb_str_concat(buf, str_equal);
+        rb_str_cat(buf, "=", 1);
         rb_str_concat(buf, quote);
         rb_str_concat(buf, escape_attribute(escape_attrs, to_s(value)));
         rb_str_concat(buf, quote);
