@@ -5,10 +5,10 @@
 #include "string.h"
 
 VALUE mAttributeBuilder, mObjectRef;
-static ID id_flatten, id_keys, id_parse, id_prepend, id_tr, id_uniq_bang;
+static ID id_flatten, id_keys, id_parse, id_uniq_bang;
 static ID id_xhtml;
 
-static VALUE str_aria, str_data, str_equal, str_hyphen, str_space, str_underscore;
+static VALUE str_aria, str_data, str_space, str_underscore;
 
 static void
 delete_falsey_values(VALUE values)
@@ -527,16 +527,11 @@ Init_hamlit(void)
   id_flatten   = rb_intern("flatten");
   id_keys      = rb_intern("keys");
   id_parse     = rb_intern("parse");
-  id_prepend   = rb_intern("prepend");
-  id_tr        = rb_intern("tr");
   id_uniq_bang = rb_intern("uniq!");
   id_xhtml     = rb_intern("xhtml");
 
-  // Consider using rb_interned_str() once we stop supporting Ruby 2.7.
   rb_gc_register_mark_object(str_aria       = rb_obj_freeze(rb_str_new_cstr("aria")));
   rb_gc_register_mark_object(str_data       = rb_obj_freeze(rb_str_new_cstr("data")));
-  rb_gc_register_mark_object(str_equal      = rb_obj_freeze(rb_str_new_cstr("=")));
-  rb_gc_register_mark_object(str_hyphen     = rb_obj_freeze(rb_str_new_cstr("-")));
   rb_gc_register_mark_object(str_space      = rb_obj_freeze(rb_str_new_cstr(" ")));
   rb_gc_register_mark_object(str_underscore = rb_obj_freeze(rb_str_new_cstr("_")));
 }
